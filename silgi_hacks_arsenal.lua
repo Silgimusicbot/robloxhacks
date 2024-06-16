@@ -54,6 +54,12 @@ mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 mainFrame.BackgroundTransparency = 0.5
 mainFrame.Parent = modMenu
 
+local backgroundImage = Instance.new("ImageLabel")
+backgroundImage.Size = UDim2.new(0, 200, 0, 200)
+backgroundImage.Position = UDim2.new(0, 0, 0, 0)
+backgroundImage.Image = "file:///C:/Users/Admin/Downloads/images.jpg"
+backgroundImage.Parent = mainFrame
+
 local title = Instance.new("TextLabel")
 title.Text = "SILGI HACKS"
 title.Font = Enum.Font.SourceSans
@@ -95,40 +101,13 @@ aimbotModeToggle.BackgroundColor3 = Color3.new(0, 0, 0)
 aimbotModeToggle.BackgroundTransparency = 0.5
 aimbotModeToggle.Parent = mainFrame
 
-local skeletonToggle = Instance.new("TextButton")
-skeletonToggle.Text = "Skeleton: ON"
-skeletonToggle.Font = Enum.Font.SourceSans
-skeletonToggle.FontSize = Enum.FontSize.Size18
-skeletonToggle.TextColor3 = Color3.new(1, 1, 1)
-skeletonToggle.BackgroundColor3 = Color3.new(0, 0, 0)
-skeletonToggle.BackgroundTransparency = 0.5
-skeletonToggle.Parent = mainFrame
-
-local boxToggle = Instance.new("TextButton")
-boxToggle.Text = "Box: ON"
-boxToggle.Font = Enum.Font.SourceSans
-boxToggle.FontSize = Enum.FontSize.Size18
-boxToggleboxToggle.TextColor3 = Color3.new(1, 1, 1)
-boxToggle.BackgroundColor3 = Color3.new(0, 0, 0)
-boxToggle.BackgroundTransparency = 0.5
-boxToggle.Parent = mainFrame
-
-local nameToggle = Instance.new("TextButton")
-nameToggle.Text = "Name: ON"
-nameToggle.Font = Enum.Font.SourceSans
-nameToggle.FontSize = Enum.FontSize.Size18
-nameToggle.TextColor3 = Color3.new(1, 1, 1)
-nameToggle.BackgroundColor3 = Color3.new(0, 0, 0)
-nameToggle.BackgroundTransparency = 0.5
-nameToggle.Parent = mainFrame
-
 -- ESP Toggle Function
 espToggle.MouseButton1Click:Connect(function()
     if not espEnabled then
         espEnabled = true
         espToggle.Text = "ESP: ON"
         for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            if v ~= player and v.Characterand v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
                 local character = v.Character
                 local head = character:FindFirstChild("Head")
                 local body = character:FindFirstChild("HumanoidRootPart")
@@ -228,7 +207,7 @@ end)
 
 -- Aimbot Mode Toggle Function
 aimbotModeToggle.MouseButton1Click:Connect(function()
-    if aimbotMode == ""Head" then
+    if aimbotMode == "Head" then
         aimbotMode = "Body"
         aimbotModeToggle.Text = "Aimbot Mode: Body"
     else
@@ -246,56 +225,102 @@ end)
 userInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.RightShift then
         if modMenu.Enabled then
-            local tween = tweenService:Create(modMenu, tweenInfo, {Position = UDim2.new(0, -200, 0, 10)})
-            tween:Play()
             modMenu.Enabled = false
+            mainFrame:TweenPosition(UDim2.new(0, -200, 0, 10), "Out", "Quad", 0.5)
         else
-            local tween = tweenService:Create(modMenu, tweenInfo, {Position = UDim2.new(0, 10, 0, 10)})
-            tween:Play()
             modMenu.Enabled = true
+            mainFrame:TweenPosition(UDim2.new(0, 10, 0, 10), "Out", "Quad", 0.5)
         end
-    end
+    endend
 end)
 
--- Right Mouse Button Hold
-userInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton2 then
-        local closestPlayer
-        local distance = math.huge
-        for _, v in pairs(game.Players:GetPlayers()) do
-            if v ~= player and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-                local character = v.Character
-                local head = character:FindFirstChild("Head")
-                local body = character:FindFirstChild("HumanoidRootPart")
-                local pos = (aimbotMode == "Head" and head or body).Position
-                local magnitude = (pos - player.Character.HumanoidRootPart.Position).Magnitude
-                if magnitude < distance and magnitude < fov then
-                    distance = magnitude
-                    closestPlayer = v
-                end
-            end
-        end
-        if closestPlayer then
-            target = closestPlayer
-        end
-    end
-end)
+-- Run the aimbot function every frame
+runService.RenderStepped:Connect(aimbot)
 
-userInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton2 then
-        target = nil
-    end
-end)
-
--- Run Aimbot Function
-runService.Heartbeat:Connect(aimbot)
-
--- Initialize ESP List and Text List
+-- Initialize the espList and textList tables
 local espList = {}
 local textList = {}
 
--- Initialize Mod Menu Animation
-local tweenService = game:GetService("TweenService")
-local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local modMenuTween = tweenService:Create(modMenu, tweenInfo, {Position = UDim2.new(0, 10, 0, 10)})
-modMenuTween:Play()
+-- Initialize the target variable
+target = nil
+
+-- Set the camera's camera type to custom
+camera.CameraType = Enum.CameraType.Custom
+
+-- Set the camera's field of view
+camera.FieldOfView = fov
+
+-- Set the camera's camera mode to lock first person
+camera.CameraMode = Enum.CameraMode.LockFirstPerson
+
+-- Set the camera's head locked to true
+camera.HeadLocked = true
+
+-- Set the camera's head sensitivity to 0
+camera.HeadSensitivity = 0
+
+-- Set the camera's rotation to 0, 0, 0
+camera.Rotation = Vector3.new(0, 0, 0)
+
+-- Set the camera's position to 0, 0, 0
+camera.Position = Vector3.new(0, 0, 0)
+
+-- Set the camera's focus to the player's character
+camera.Focus = player.Character.HumanoidRootPart
+
+-- Set the camera's viewport size to the screen size
+camera.ViewportSize = Vector2.new(1024, 576)
+
+-- Set the camera's near clip plane to 0.1
+camera.NearClipPlane = 0.1
+
+-- Set the camera's far clip plane to 1000
+camera.FarClipPlane = 1000
+
+-- Set the camera's orthographic scale to 1
+camera.OrthographicScale = 1
+
+-- Set the camera's orthographic offset to 0, 0
+camera.OrthographicOffset = Vector2.new(0, 0)
+
+-- Set the camera's camera min zoom to 0.1
+camera.CameraMinZoom = 0.1
+
+-- Set the camera's camera max zoom to 10
+camera.CameraMaxZoom = 10
+
+-- Set the camera's camera zoom to 1
+camera.CameraZoom = 1
+
+-- Set the camera's camera field of view to 80
+camera.CameraFieldOfView = 80
+
+-- Set the camera's camera aspect ratio to 1.77777777777778
+camera.CameraAspectRatio = 1.77777777777778
+
+-- Set the camera's camera near clip plane to 0.1
+camera.CameraNearClipPlane = 0.1
+
+-- Set the camera's camera far clip plane to 1000
+camera.CameraFarClipPlane = 1000
+
+-- Set the camera's camera orthographic scale to 1
+camera.CameraOrthographicScale = 1
+
+-- Set the camera's camera orthographic offset to 0, 0
+camera.CameraOrthographicOffset = Vector2.new(0, 0)
+
+-- Set the camera's camera min zoom to 0.1
+camera.CameraMinZoom = 0.1
+
+-- Set the camera's camera max zoom to 10
+camera.CameraMaxZoom = 10
+
+-- Set the camera's camera zoom to 1
+camera.CameraZoom = 1
+
+-- Set the camera's camera field of view to 80
+camera.CameraFieldOfView = 80
+
+-- Set the camera's camera aspect ratio to 1.77777777777778
+camera.CameraAspectRatio = 1.77777777777778
